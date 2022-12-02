@@ -45,3 +45,11 @@ const input = readFileSync('./input.txt', 'utf-8');
 
 // split by new line
 const lines = input.split('\n');
+
+const score = lines.map(line => {
+	const [opponent, player] = line.split(' ');
+	if (!opponent || !player) return 0;
+	return pointsForThrow[player] + pointsForOutcome[outcome(opponent as opponentThrow, player as keyof typeof pointsForThrow)];
+}).reduce((a, b) => a + b, 0);
+
+console.log(score);
