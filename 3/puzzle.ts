@@ -17,4 +17,19 @@ const priority = (char: string): number => {
 	return charCode - 96;
 }
 
-console.log(priority('Z'));
+let sum = 0;
+for (const line of lines) {
+	if (line.length === 0) continue;
+	if (line.length % 2 !== 0) throw new Error('Odd line length');
+
+	const [one, two] = [line.slice(0, line.length / 2), line.slice(line.length / 2)];
+	const common = [...new Set(one.split('').filter(char => two.includes(char)))];
+	if (common.length === 0) throw new Error('No common letter');
+	if (common.length > 1) {
+		console.log(line, common);
+		throw new Error('More than one common letter');
+	}
+	sum += priority(common[0]);
+}
+
+console.log(sum);
