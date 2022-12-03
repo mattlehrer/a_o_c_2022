@@ -32,4 +32,21 @@ for (const line of lines) {
 	sum += priority(common[0]);
 }
 
-console.log(sum);
+console.log('Part 1: ', sum);
+
+// Part 2
+// loop through each set of three lines
+let badgeSum = 0;
+for (let i = 0; i < (lines.length-1) / 3; i++) {
+	const [one, two, three] = [lines[i * 3], lines[i * 3 + 1], lines[i * 3 + 2]];
+	if (!one.length || !two.length || !three.length) throw new Error('not enough lines');
+
+	const common = [...new Set(one.split('').filter(char => two.includes(char) && three.includes(char)))];
+	if (common.length === 0) throw new Error('No common letter');
+	if (common.length > 1) {
+		console.log(one, two, three, common);
+		throw new Error('More than one common letter');
+	}
+	badgeSum += priority(common[0]);
+}
+console.log('Part 2: ', badgeSum);
