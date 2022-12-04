@@ -5,8 +5,8 @@ const input = readFileSync('./input.txt', 'utf-8');
 // split by new line
 const lines = input.split('\n');
 
-// Part 1
 let fullyContained = 0;
+let overlapping = 0;
 
 for (const line of lines) {
 	if (!line) {
@@ -23,6 +23,15 @@ for (const line of lines) {
 	{
 		fullyContained++;
 	}
+
+	if (
+		((min1 <= min2 && max1 >= min2) || (min1 <= max2 && max1 >= max2)) // part of two is inside one
+		|| ((min2 <= min1 && max2 >= min1) || (min2 <= max1 && max2 >= max1)) // part of one is inside two
+	) 
+	{
+		overlapping++;
+	}
 }
 
 console.log('Part 1: ', fullyContained);
+console.log('Part 2: ', overlapping);
