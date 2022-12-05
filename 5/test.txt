@@ -1,0 +1,8 @@
+[V]     [B]
+[N] [Q] [W]
+[F] [D] [S]
+[J] [S] [N]
+ 1   2   3 
+
+move 1 from 3 to 2
+move 2 from 1 to 3
