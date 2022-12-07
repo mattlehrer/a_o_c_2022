@@ -58,10 +58,26 @@ function part1(dir: Directory = root) {
 }
 part1();
 sizes.sort((a, b) => a.size - b.size);
-console.log('All: ', JSON.stringify(sizes, null, 2));
+// console.log('All: ', JSON.stringify(sizes, null, 2));
 console.log(
 	'Under 100_000',
 	sizes.filter((s) => s.size <= 100_000).reduce((a, b) => a + b.size, 0),
+);
+
+console.log('Part 2:');
+const TOTAL_DISK_SIZE = 70_000_000;
+const NEED_FREE = 30_000_000;
+
+const currentUsed = calculateDirectorySize(root);
+console.log('Current used: ', currentUsed);
+const currentFree = TOTAL_DISK_SIZE - currentUsed;
+console.log('Current free: ', currentFree);
+const needToFree = NEED_FREE - currentFree;
+console.log('Need to free: ', needToFree);
+
+console.log(
+	'Smallest directory larger than need to free: ',
+	sizes.find((s) => s.size > needToFree),
 );
 
 function currentPath(directory: Directory | null): string {
