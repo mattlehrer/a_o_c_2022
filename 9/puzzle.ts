@@ -12,9 +12,9 @@ type Position = {
 
 type Direction = 'U' | 'R' | 'D' | 'L';
 
-const tailHasVisited: Position[] = [];
 let currentTailPosition: Position = { x: 0, y: 0 };
 let currentHeadPosition: Position = { x: 0, y: 0 };
+const tailHasVisited: Position[] = [currentTailPosition];
 
 for (const line of lines) {
 	const [direction, stepsString] = line.split(' ');
@@ -31,8 +31,8 @@ for (const line of lines) {
 console.log('Part 1:', tailHasVisited.length);
 
 // Part 2
-const knotPositions: Position[] = new Array(10).fill(0).map(() => ({ x: 0, y: 0 }));
-const knot10HasVisited: Position[] = [];
+const knotPositions: Position[] = new Array(10).fill({ x: 0, y: 0 });
+const knot10HasVisited: Position[] = [{ x: 0, y: 0 }];
 
 for (const line of lines) {
 	const [direction, stepsString] = line.split(' ');
