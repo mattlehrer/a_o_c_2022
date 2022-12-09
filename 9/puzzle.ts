@@ -30,6 +30,26 @@ for (const line of lines) {
 
 console.log('Part 1:', tailHasVisited.length);
 
+// Part 2
+const knotPositions: Position[] = new Array(10).fill(0).map(() => ({ x: 0, y: 0 }));
+const knot10HasVisited: Position[] = [];
+
+for (const line of lines) {
+	const [direction, stepsString] = line.split(' ');
+	const steps = Number(stepsString);
+	if (Number.isNaN(steps)) throw new Error('Invalid steps: ' + stepsString);
+	if (!isDirection(direction)) throw new Error('Invalid direction: ' + direction);
+	for (let i = 0; i < steps; i++) {
+		knotPositions[0] = moveHead(knotPositions[0], direction);
+		for (let knot = 1; knot < 10; knot++) {
+			knotPositions[knot] = moveTail(knotPositions[knot - 1], knotPositions[knot]);
+		}
+		addIfUnique(knot10HasVisited, knotPositions[9]);
+	}
+}
+
+console.log('Part 2:', knot10HasVisited.length);
+
 function moveHead(h: Position, d: Direction): Position {
 	let newH = { ...h };
 	switch (d) {
