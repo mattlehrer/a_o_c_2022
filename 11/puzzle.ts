@@ -1,11 +1,12 @@
 import { readFileSync } from 'node:fs';
 
-const input = readFileSync('./test.txt', 'utf-8');
+const input = readFileSync('./input.txt', 'utf-8');
 
 const lines = input.split('\n');
 
-function parseInput(input: string[]): Monkeys {
+function parseInput(input: string[]): { monkeys: Monkeys; maxWorry: number } {
 	let currentMonkey = 0;
+	let maxWorry = 1;
 	const monkeys: Monkeys = {};
 
 	for (const pretrim of input) {
@@ -46,6 +47,7 @@ function parseInput(input: string[]): Monkeys {
 			}
 		} else if (line.startsWith('Test: divisible by ')) {
 			monkeys[currentMonkey].test = Number(line.slice(19));
+			maxWorry = maxWorry * monkeys[currentMonkey].test;
 		} else if (line.startsWith('If true: throw to monkey ')) {
 			monkeys[currentMonkey].onTrue = Number(line.slice(25));
 		} else if (line.startsWith('If false: throw to monkey ')) {
@@ -54,10 +56,20 @@ function parseInput(input: string[]): Monkeys {
 			throw new Error('Unknown line: ' + line);
 		}
 	}
-	return monkeys;
+	return { monkeys, maxWorry };
 }
 
-function monkeyBusiness(monkeys: Monkeys, worryDrop: number = 3, rounds: number = 20): number {
+function monkeyBusiness({
+	monkeys,
+	worryDrop = 3,
+	rounds = 20,
+	maxWorry,
+}: {
+	monkeys: Monkeys;
+	worryDrop: number;
+	rounds: number;
+	maxWorry: number;
+}): number {
 	for (let round = 0; round < rounds; round++) {
 		for (const monkey of Object.values(monkeys)) {
 			while (monkey.items.length > 0) {
@@ -65,12 +77,16 @@ function monkeyBusiness(monkeys: Monkeys, worryDrop: number = 3, rounds: number 
 				if (!item) throw new Error('No item!');
 				let worryLevel: number;
 				if (monkey.operations.type === '+') {
-					worryLevel = Math.floor((item + monkey.operations.amount) / worryDrop);
+					worryLevel = Math.floor((item + monkey.operations.amount) / worryDrop) % maxWorry;
 				} else if (monkey.operations.type === '*') {
-					worryLevel = Math.floor((item * monkey.operations.amount) / worryDrop);
+					worryLevel = Math.floor((item * monkey.operations.amount) / worryDrop) % maxWorry;
 				} else {
 					// the problem is here --- can exceed Number.MAX_SAFE_INTEGER
-					worryLevel = Math.floor(item ** monkey.operations.amount / worryDrop);
+					if (item ** monkey.operations.amount > Number.MAX_SAFE_INTEGER) {
+						console.log({ item, amt: monkey.operations.amount });
+						throw new Error('Overflow!');
+					}
+					worryLevel = Math.floor(item ** monkey.operations.amount / worryDrop) % maxWorry;
 				}
 				if (worryLevel % monkey.test === 0) {
 					monkeys[monkey.onTrue].items.push(worryLevel);
@@ -81,18 +97,13 @@ function monkeyBusiness(monkeys: Monkeys, worryDrop: number = 3, rounds: number 
 			}
 		}
 	}
-	console.log(
-		Object.values(monkeys)
-			.map((m) => m.inspections)
-			.join(', '),
-	);
 
 	const sorted = Object.values(monkeys).sort((a, b) => b.inspections - a.inspections);
 	return sorted.slice(0, 2).reduce((product, curr) => product * curr.inspections, 1);
 }
 
-console.log('Part 1:', monkeyBusiness(parseInput(lines), 3, 20));
-console.log('Part 2:', monkeyBusiness(parseInput(lines), 1, 10000));
+console.log('Part 1:', monkeyBusiness({ ...parseInput(lines), worryDrop: 3, rounds: 20 }));
+console.log('Part 2:', monkeyBusiness({ ...parseInput(lines), worryDrop: 1, rounds: 10000 }));
 
 type Monkey = {
 	items: number[];
