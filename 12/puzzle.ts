@@ -13,6 +13,8 @@ const str = JSON.stringify;
 let start: Position | undefined = undefined;
 let end: Position | undefined = undefined;
 
+const possibleStarts: Position[] = [];
+
 // construct adjacency map, true if there is a path from x1,y1 to x2,y2
 const adjacencyMap: AdjacencyMap = new Map();
 
@@ -25,6 +27,8 @@ for (let y = 0; y < MAP_HEIGHT; y++) {
 		} else {
 			if (map[y][x] === 'S') {
 				start = { x, y };
+			} else if (map[y][x] === 'a') {
+				possibleStarts.push({ x, y });
 			}
 
 			const current = map[y][x] === 'S' ? 'a' : map[y][x];
@@ -49,9 +53,18 @@ for (let y = 0; y < MAP_HEIGHT; y++) {
 	}
 }
 
-// console.log(adjacencyMap);
+let minStartDistance = shortestPath(start!, end!, adjacencyMap);
+console.log('Part 1:', minStartDistance);
 
-console.log('Part 1:', shortestPath(start!, end!, adjacencyMap));
+for (let i = 0; i < possibleStarts.length; i++) {
+	const possibleStart = possibleStarts[i];
+	const distance = shortestPath(possibleStart!, end!, adjacencyMap);
+	if (distance < minStartDistance) {
+		minStartDistance = distance;
+		console.log('New min:', minStartDistance, 'To go:', possibleStarts.length - i);
+	}
+}
+console.log('Part 2:', minStartDistance);
 
 type AdjacencyMap = Map<string, Position[]>;
 type Position = { x: number; y: number };
@@ -101,12 +114,7 @@ function shortestPath(start: Position, endPos: Position, graph: AdjacencyMap) {
 			}
 		}
 		if (minDistance === Infinity) {
-			console.log({ current, neighbors: graph.get(current) });
-			for (const nPos of graph.get(current)!) {
-				const n = str(nPos);
-				console.log({ n, distance: tentativeDistances.get(n), visited: !unvisited.has(n) });
-			}
-			throw new Error('No path found');
+			return Infinity;
 		}
 	}
 
