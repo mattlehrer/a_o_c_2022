@@ -39,7 +39,7 @@ for (let y = 0; y < MAP_HEIGHT; y++) {
 					const adjacent = map[y2][x2] === 'E' ? 'z' : map[y2][x2];
 					const currHeight = current.charCodeAt(0);
 					const adjHeight = adjacent.charCodeAt(0);
-					if (adjHeight === currHeight || adjHeight === currHeight + 1) {
+					if (adjHeight <= currHeight + 1) {
 						adjacentPositions.push(position2);
 					}
 				}
@@ -101,6 +101,11 @@ function shortestPath(start: Position, endPos: Position, graph: AdjacencyMap) {
 			}
 		}
 		if (minDistance === Infinity) {
+			console.log({ current, neighbors: graph.get(current) });
+			for (const nPos of graph.get(current)!) {
+				const n = str(nPos);
+				console.log({ n, distance: tentativeDistances.get(n), visited: !unvisited.has(n) });
+			}
 			throw new Error('No path found');
 		}
 	}
