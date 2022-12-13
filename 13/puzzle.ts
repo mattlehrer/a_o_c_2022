@@ -15,9 +15,23 @@ while (i < lines.length - 1) {
 	i = i + 3;
 }
 
-console.log(rightOrderSumOfIndices);
+console.log('Part 1', rightOrderSumOfIndices);
 
-function isOrdered(left: number | number[] | undefined, right: number | number[] | undefined) {
+const newInput = [
+	...lines.filter((line) => line !== '' && line !== '\r').map((line) => JSON.parse(line)),
+	[[2]],
+	[[6]],
+];
+
+const sorted = newInput.sort((a, b) => (isOrdered(a, b) ? -1 : 1));
+const two = sorted.findIndex((line) => JSON.stringify(line) === JSON.stringify([[2]])) + 1;
+const six = sorted.findIndex((line) => JSON.stringify(line) === JSON.stringify([[6]])) + 1;
+console.log('Part 2', two * six);
+
+function isOrdered(
+	left: number | number[] | undefined,
+	right: number | number[] | undefined,
+): boolean {
 	// same number or both undefined or just left undefined
 	if (left === right || left === undefined) {
 		return true;
@@ -35,16 +49,19 @@ function isOrdered(left: number | number[] | undefined, right: number | number[]
 		return isOrdered([left], right);
 	}
 	if (Array.isArray(left) && Array.isArray(right)) {
-		let compareLeft = left.shift();
-		let compareRight = right.shift();
+		const leftCopy = [...left];
+		const rightCopy = [...right];
+		let compareLeft = leftCopy.shift();
+		let compareRight = rightCopy.shift();
 		while (
 			compareLeft === compareRight &&
 			compareLeft !== undefined &&
 			compareRight !== undefined
 		) {
-			compareLeft = left.shift();
-			compareRight = right.shift();
+			compareLeft = leftCopy.shift();
+			compareRight = rightCopy.shift();
 		}
 		return isOrdered(compareLeft, compareRight);
 	}
+	throw new Error('Invalid input');
 }
