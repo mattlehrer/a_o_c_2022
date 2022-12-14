@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import clone from 'just-clone';
 
 console.time('Part 1');
 const input = readFileSync('./input.txt', 'utf-8');
@@ -51,39 +52,56 @@ for (let y = 0; y <= maxY; y++) {
 const map = origMap.map((row) => row.slice(minX));
 const start = map[0].indexOf('+');
 
-console.log('Part 1', sandFall(map, start, 0));
+const sandMap = clone(map);
+console.log('Part 1', sandFall(sandMap, start, 0));
 
 console.timeEnd('Part 1');
 
 console.time('Part 2');
-console.log('Part 2');
+
+const mapWithFloor = clone(origMap);
+mapWithFloor[maxY + 1] = [];
+mapWithFloor[maxY + 2] = [];
+for (let i = 500 - 10 * (500 - minX); i < 500 + 10 * (maxX - 500); i++) {
+	for (let y = 0; y <= maxY; y++) {
+		if (!mapWithFloor[y][i]) mapWithFloor[y][i] = '.';
+	}
+	mapWithFloor[maxY + 1][i] = '.';
+	mapWithFloor[maxY + 2][i] = '#';
+}
+
+console.log('Part 2', sandFall2(mapWithFloor, mapWithFloor[0].indexOf('+'), 0));
 
 console.timeEnd('Part 2');
 
-function sandFall(map: string[][], startX: number, startY: number): number {
+function sandFall2(map: string[][], startX: number, startY: number): number {
 	let amountOfSand = 0;
-	let [nextX, nextY] = [startX, startY];
+	let nextX: number | undefined, nextY: number | undefined;
 
 	try {
-		while (true) {
-			[nextX, nextY] = canFallTo(startX, startY);
+		while (!(nextX === 500 && nextY === 0)) {
+			[nextX, nextY] = canFallTo2(map, startX, startY);
 			map[nextY][nextX] = 'o';
 			amountOfSand++;
 		}
-	} catch (error) {}
+	} catch (error) {
+		console.log(error);
+		// printmap(map);
+	}
 
 	return amountOfSand;
 }
 
-function canFallTo(currentX: number, currentY: number): [number, number] {
+function canFallTo2(map: string[][], currentX: number, currentY: number): [number, number] {
 	// can fall straight down
-	if (map[currentY + 1][currentX] === '.') return canFallTo(currentX, currentY + 1);
-	if (currentX - 1 < 0) throw new Error('out of bounds');
+	if (!['o', '#'].includes(map[currentY + 1][currentX]))
+		return canFallTo2(map, currentX, currentY + 1);
 	// can fall down left
-	if (map[currentY + 1][currentX - 1] === '.') return canFallTo(currentX - 1, currentY + 1);
-	if (currentX + 1 === map[0].length) throw new Error('out of bounds');
+	if (!['o', '#'].includes(map[currentY + 1][currentX - 1]))
+		return canFallTo2(map, currentX - 1, currentY + 1);
 	// can fall down right
-	if (map[currentY + 1][currentX + 1] === '.') return canFallTo(currentX + 1, currentY + 1);
+	if (!['o', '#'].includes(map[currentY + 1][currentX + 1]))
+		return canFallTo2(map, currentX + 1, currentY + 1);
 	// can't fall
 	return [currentX, currentY];
 }
@@ -92,4 +110,34 @@ function printmap(map: string[][]) {
 	console.log();
 	console.log(map.map((row) => row.join('')).join('\n'));
 	console.log();
+}
+
+function sandFall(map: string[][], startX: number, startY: number): number {
+	let amountOfSand = 0;
+	let [nextX, nextY] = [startX, startY];
+
+	try {
+		while (true) {
+			[nextX, nextY] = canFallTo(map, startX, startY);
+			map[nextY][nextX] = 'o';
+			amountOfSand++;
+		}
+	} catch (error) {
+		printmap(map);
+	}
+
+	return amountOfSand;
+}
+
+function canFallTo(map: string[][], currentX: number, currentY: number): [number, number] {
+	// can fall straight down
+	if (map[currentY + 1][currentX] === '.') return canFallTo(map, currentX, currentY + 1);
+	if (currentX - 1 < 0) throw new Error('out of bounds');
+	// can fall down left
+	if (map[currentY + 1][currentX - 1] === '.') return canFallTo(map, currentX - 1, currentY + 1);
+	if (currentX + 1 === map[0].length) throw new Error('out of bounds');
+	// can fall down right
+	if (map[currentY + 1][currentX + 1] === '.') return canFallTo(map, currentX + 1, currentY + 1);
+	// can't fall
+	return [currentX, currentY];
 }
