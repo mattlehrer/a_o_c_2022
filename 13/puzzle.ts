@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 
+console.time('Part 1');
 const input = readFileSync('./input.txt', 'utf-8');
 
 const lines = input.split('\n');
@@ -16,7 +17,9 @@ while (i < lines.length - 1) {
 }
 
 console.log('Part 1', rightOrderSumOfIndices);
+console.timeEnd('Part 1');
 
+console.time('Part 2');
 const newInput = [
 	...lines.filter((line) => line !== '' && line !== '\r').map((line) => JSON.parse(line)),
 	[[2]],
@@ -27,6 +30,7 @@ const sorted = newInput.sort((a, b) => (isOrdered(a, b) ? -1 : 1));
 const two = sorted.findIndex((line) => JSON.stringify(line) === JSON.stringify([[2]])) + 1;
 const six = sorted.findIndex((line) => JSON.stringify(line) === JSON.stringify([[6]])) + 1;
 console.log('Part 2', two * six);
+console.timeEnd('Part 2');
 
 function isOrdered(
 	left: number | number[] | undefined,
