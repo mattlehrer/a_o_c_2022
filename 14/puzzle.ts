@@ -123,7 +123,7 @@ function sandFall(map: string[][], startX: number, startY: number): number {
 			amountOfSand++;
 		}
 	} catch (error) {
-		printmap(map);
+		// printmap(map);
 	}
 
 	return amountOfSand;
