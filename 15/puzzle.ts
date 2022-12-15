@@ -1,8 +1,7 @@
 import { readFileSync } from 'node:fs';
-import clone from 'just-clone';
 
 console.time('Part 1');
-const input = readFileSync('./test.txt', 'utf-8');
+const input = readFileSync('./input.txt', 'utf-8');
 
 const lines = input.split('\n');
 
@@ -16,14 +15,19 @@ for (const line of lines) {
 }
 
 const targetRowHits = new Set<number>();
-const targetRow = 10;
+const targetRow = 2000000;
 for (const [x, y, bx, by] of locations) {
 	const d = getDistance([x, y], [bx, by]);
 	if (y - d <= targetRow && y + d >= targetRow) {
-		range(x - d - Math.abs(y - by), x + d + 1 - Math.abs(y - by)).forEach((x) =>
-			targetRowHits.add(x),
-		);
-		if (by === targetRow) targetRowHits.delete(bx);
+		const yDiff = Math.abs(y - targetRow);
+		const xRange = range(x - (d - yDiff), x + (d - yDiff) + 1);
+		// console.log({ x, y, bx, by, d, xRange });
+		xRange.forEach((i) => targetRowHits.add(i));
+	}
+}
+for (const [, , bx, by] of locations) {
+	if (by === targetRow) {
+		targetRowHits.delete(bx);
 	}
 }
 
