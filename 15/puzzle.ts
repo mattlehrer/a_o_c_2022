@@ -45,13 +45,13 @@ const TUNING_X_MULTIPLIER = 4_000_000;
 
 for (const [x, y, bx, by] of locations) {
 	const d = getDistance([x, y], [bx, by]);
-	for (let r = Math.max(MIN, y - d - 1); r <= Math.min(MAX, y + d + 1); r++) {
-		const left = x - 1 - (d - Math.abs(y - r));
-		if (left >= MIN && !isInSensorRange({ px: left, py: r, data: locations })) {
-			console.log('Part 2', left * TUNING_X_MULTIPLIER + r);
-			console.timeEnd('Part 2');
-			exit(0);
-		}
+	for (let r = Math.max(MIN, y - d - 1); r <= Math.min(MAX, y); r++) {
+		// const left = x - 1 - (d - Math.abs(y - r));
+		// if (left >= MIN && !isInSensorRange({ px: left, py: r, data: locations })) {
+		// 	console.log('Part 2', left * TUNING_X_MULTIPLIER + r);
+		// 	console.timeEnd('Part 2');
+		// 	exit(0);
+		// }
 		const right = x + 1 + (d - Math.abs(y - r));
 		if (right <= MAX && !isInSensorRange({ px: right, py: r, data: locations })) {
 			console.log('Part 2', right * TUNING_X_MULTIPLIER + r);
