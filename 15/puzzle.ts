@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { exit } from 'node:process';
 
 console.time('Part 1');
 const input = readFileSync('./input.txt', 'utf-8');
@@ -14,24 +15,24 @@ for (const line of lines) {
 	locations.push([parseInt(x), parseInt(y), parseInt(bx), parseInt(by)]);
 }
 
-// const targetRowHits = new Set<number>();
-// const targetRow = 2000000;
-// for (const [x, y, bx, by] of locations) {
-// 	const d = getDistance([x, y], [bx, by]);
-// 	if (y - d <= targetRow && y + d >= targetRow) {
-// 		const yDiff = Math.abs(y - targetRow);
-// 		const xRange = range(x - (d - yDiff), x + (d - yDiff) + 1);
-// 		// console.log({ x, y, bx, by, d, xRange });
-// 		xRange.forEach((i) => targetRowHits.add(i));
-// 	}
-// }
-// for (const [, , bx, by] of locations) {
-// 	if (by === targetRow) {
-// 		targetRowHits.delete(bx);
-// 	}
-// }
+const targetRowHits = new Set<number>();
+const targetRow = 2000000;
+for (const [x, y, bx, by] of locations) {
+	const d = getDistance([x, y], [bx, by]);
+	if (y - d <= targetRow && y + d >= targetRow) {
+		const yDiff = Math.abs(y - targetRow);
+		const xRange = range(x - (d - yDiff), x + (d - yDiff) + 1);
+		// console.log({ x, y, bx, by, d, xRange });
+		xRange.forEach((i) => targetRowHits.add(i));
+	}
+}
+for (const [, , bx, by] of locations) {
+	if (by === targetRow) {
+		targetRowHits.delete(bx);
+	}
+}
 
-// console.log('Part 1', targetRowHits.size);
+console.log('Part 1', targetRowHits.size);
 console.timeEnd('Part 1');
 
 console.time('Part 2');
@@ -41,33 +42,29 @@ const MAX = 4_000_000;
 // const MAX = 20;
 const TUNING_X_MULTIPLIER = 4_000_000;
 
-for (let i = MIN; i <= MAX; i++) {
-	const row = new Set<number>();
-	for (const [x, y, bx, by] of locations) {
-		const d = getDistance([x, y], [bx, by]);
-		if (y - d <= i && y + d >= i) {
-			const yDiff = Math.abs(y - i);
-			const xRange = range(Math.max(x - (d - yDiff), MIN), Math.min(x + (d - yDiff) + 1, MAX + 1));
-			// console.log({ x, y, bx, by, d, xRange });
-			xRange.forEach((j) => row.add(j));
+const possiblePoints: Set<string> = new Set();
+for (const [x, y, bx, by] of locations) {
+	const d = getDistance([x, y], [bx, by]);
+	for (let r = Math.max(MIN, y - d - 1); r <= Math.min(MAX, y + d + 1); r++) {
+		const left = x - 1 - (d - Math.abs(y - r));
+		if (left >= MIN && !isInSensorRange({ px: left, py: r, data: locations })) {
+			console.log('Part 2', left * TUNING_X_MULTIPLIER + r);
+			console.timeEnd('Part 2');
+			exit(0);
+			// possiblePoints.add(`${left}_${r}`);
 		}
-	}
-	for (const [x, y, bx, by] of locations) {
-		if (by === i && bx >= MIN && bx <= MAX) {
-			row.add(bx);
+		const right = x + 1 + (d - Math.abs(y - r));
+		if (right <= MAX && !isInSensorRange({ px: right, py: r, data: locations })) {
+			console.log('Part 2', right * TUNING_X_MULTIPLIER + r);
+			console.timeEnd('Part 2');
+			exit(0);
+			// possiblePoints.add(`${right}_${r}`);
 		}
-		if (y === i && x >= MIN && x <= MAX) {
-			row.add(x);
-		}
-	}
-	if (row.size !== MAX + 1) {
-		const y = i;
-		const x = (MAX * (MAX + 1)) / 2 - [...row].reduce((a, b) => a + b, 0);
-
-		console.log('Part 2', x * TUNING_X_MULTIPLIER + y);
-		break;
 	}
 }
+// const [x, y] = [...possiblePoints][0].split('_').map(Number);
+// console.log({ x, y });
+// console.log('Part 2', x * TUNING_X_MULTIPLIER + y);
 
 console.timeEnd('Part 2');
 
@@ -80,4 +77,22 @@ function getDistance([x1, y1]: [number, number], [x2, y2]: [number, number]) {
 function range(start: number, end: number): number[] {
 	const length = end - start;
 	return Array.from({ length }, (_, i) => start + i);
+}
+
+function isInSensorRange({
+	px,
+	py,
+	data,
+}: {
+	px: number;
+	py: number;
+	data: SensorAndBeacon[];
+}): boolean {
+	for (const [x, y, bx, by] of data) {
+		const d = getDistance([x, y], [bx, by]);
+		if (getDistance([x, y], [px, py]) <= d) {
+			return true;
+		}
+	}
+	return false;
 }
