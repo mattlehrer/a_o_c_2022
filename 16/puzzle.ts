@@ -45,7 +45,7 @@ for (const k of valves.keys()) {
 
 function search({ timeLeft = 30, currentValve = 'AA', v = valvesWithFlow }): number {
 	let max = 0;
-	for (const [name, valve] of v) {
+	for (const [name] of v) {
 		if (dist[currentValve][name] < timeLeft) {
 			max = Math.max(
 				max,
@@ -65,6 +65,24 @@ console.log('Part 1', search({ timeLeft: 30 }));
 console.timeEnd('Part 1');
 
 console.time('Part 2');
+
+function allPaths(start: string): string[][] {
+	const paths = [];
+	const queue = valves.get(start)!.paths;
+	const unopened = valvesWithFlow.map(([name]) => name);
+	const opened: string[] = [];
+
+	for (const valve of queue) {
+		opened.push(valve);
+		unopened.splice(unopened.indexOf(valve), 1);
+	}
+
+	return paths;
+}
+
+const all = allPaths('AA');
+console.log(all);
+
 console.log('Part 2');
 
 console.timeEnd('Part 2');
